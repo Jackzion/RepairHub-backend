@@ -13,11 +13,11 @@ import com.ziio.backend.model.request.UpdateUserRequest;
 import com.ziio.backend.model.request.UserLoginRequest;
 import com.ziio.backend.model.request.UserRegisterRequest;
 import com.ziio.backend.service.UsersService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 
 @RestController
@@ -101,7 +101,7 @@ public class UserController {
     /**
      * 修改用户信息
      */
-    @PostMapping("/update")
+    @PostMapping("/ban")
     public BaseResponse<Boolean> updateUser(@RequestBody UpdateUserRequest updateUserRequest) {
         // 查询用户
         Users user = usersService.getById(updateUserRequest.getId());

@@ -11,11 +11,11 @@ import com.ziio.backend.model.request.UserLoginRequest;
 import com.ziio.backend.model.request.UserRegisterRequest;
 import com.ziio.backend.service.UsersService;
 import com.ziio.backend.domain.Users;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author Ziio

@@ -4,8 +4,7 @@ import com.ziio.backend.domain.Users;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ziio.backend.model.request.UserLoginRequest;
 import com.ziio.backend.model.request.UserRegisterRequest;
-
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
 * @author Ziio
