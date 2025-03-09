@@ -7,10 +7,9 @@ import java.util.Arrays;
  * 用户角色枚举
  */
 public enum UserRoleEnum {
-
     USER(1),
-    MAINTAINER(2),
-    ADMIN(3),
+    MAINTAINER(3),
+    ADMIN(2),
     BAN(4);
 
     private int value;

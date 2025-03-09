@@ -1,5 +1,6 @@
 package com.ziio.backend.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ziio.backend.common.CommonConstant;
@@ -50,7 +51,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
         synchronized (username.intern()) {
             // 账户不能重复
             QueryWrapper<Users> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("userAccount", username);
+            queryWrapper.eq("username", username);
             long count = this.baseMapper.selectCount(queryWrapper);
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
@@ -59,9 +60,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
             String encryptPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
             // 3. 插入数据
             Users user = new Users();
-            user.setUsername(username);
-            user.setPassword(password);
-            user.setRole(role);
+            BeanUtil.copyProperties(userRegisterRequest, user);
+            user.setPassword(encryptPassword);
             boolean saveResult = this.save(user);
             if (!saveResult) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
