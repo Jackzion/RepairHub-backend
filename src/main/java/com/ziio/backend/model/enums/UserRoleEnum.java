@@ -8,8 +8,11 @@ import java.util.Arrays;
  */
 public enum UserRoleEnum {
     USER(1),
-    MAINTAINER(3),
+
     ADMIN(2),
+
+    MAINTAINER(3),
+
     BAN(4);
 
     private int value;

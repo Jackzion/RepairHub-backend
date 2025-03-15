@@ -1,9 +1,10 @@
 package com.ziio.backend.service;
 
-import com.ziio.backend.domain.Users;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.ziio.backend.model.request.UserLoginRequest;
-import com.ziio.backend.model.request.UserRegisterRequest;
+import com.ziio.backend.domain.Users;
+import com.ziio.backend.model.request.User.UserLoginRequest;
+import com.ziio.backend.model.request.User.UserRegisterRequest;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -17,4 +18,5 @@ public interface UsersService extends IService<Users> {
 
     Users login(UserLoginRequest loginRequest , HttpServletRequest request);
 
+    Users getLoginUsers(HttpServletRequest request);
 }

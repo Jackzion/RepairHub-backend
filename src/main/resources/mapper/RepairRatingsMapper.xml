@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ziio.backend.mapper.RepairRatingsMapper">
+
+    <resultMap id="BaseResultMap" type="com.ziio.backend.domain.RepairRatings">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="repairId" column="repairId" jdbcType="INTEGER"/>
+            <result property="score" column="score" jdbcType="TINYINT"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="userId" column="userId" jdbcType="INTEGER"/>
+            <result property="createdAt" column="createdAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,repairId,score,
+        content,userId,createdAt
+    </sql>
+</mapper>

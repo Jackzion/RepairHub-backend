@@ -1,21 +1,22 @@
 package com.ziio.backend.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ziio.backend.common.CommonConstant;
 import com.ziio.backend.common.ErrorCode;
+import com.ziio.backend.domain.Users;
 import com.ziio.backend.exception.BusinessException;
 import com.ziio.backend.mapper.UsersMapper;
-import com.ziio.backend.model.enums.UserRoleEnum;
-import com.ziio.backend.model.request.UserLoginRequest;
-import com.ziio.backend.model.request.UserRegisterRequest;
+import com.ziio.backend.model.request.User.UserLoginRequest;
+import com.ziio.backend.model.request.User.UserRegisterRequest;
 import com.ziio.backend.service.UsersService;
-import com.ziio.backend.domain.Users;
+
+import cn.hutool.core.bean.BeanUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 
 /**
@@ -92,6 +93,16 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
         request.getSession().setAttribute(CommonConstant.SESSION_KEY, user.getId());
+        return user;
+    }
+
+    @Override
+    public Users getLoginUsers(HttpServletRequest request) {
+        Integer userId = (Integer)request.getSession().getAttribute(CommonConstant.SESSION_KEY);
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        Users user = this.getById(userId);
         return user;
     }
 }

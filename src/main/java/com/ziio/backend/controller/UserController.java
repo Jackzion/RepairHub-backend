@@ -1,6 +1,11 @@
 package com.ziio.backend.controller;
 
-import cn.hutool.core.bean.BeanUtil;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.ziio.backend.common.BaseResponse;
 import com.ziio.backend.common.CommonConstant;
 import com.ziio.backend.common.ErrorCode;
@@ -8,15 +13,16 @@ import com.ziio.backend.common.ResultUtils;
 import com.ziio.backend.domain.Users;
 import com.ziio.backend.exception.BusinessException;
 import com.ziio.backend.model.enums.UserRoleEnum;
-import com.ziio.backend.model.request.BanUserRequest;
-import com.ziio.backend.model.request.UpdateUserRequest;
-import com.ziio.backend.model.request.UserLoginRequest;
-import com.ziio.backend.model.request.UserRegisterRequest;
+import com.ziio.backend.model.request.User.BanUserRequest;
+import com.ziio.backend.model.request.User.UpdateUserRequest;
+import com.ziio.backend.model.request.User.UserLoginRequest;
+import com.ziio.backend.model.request.User.UserRegisterRequest;
 import com.ziio.backend.service.UsersService;
+
+import cn.hutool.core.bean.BeanUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
 
 
 
@@ -75,18 +81,14 @@ public class UserController {
      */
     @GetMapping("/get/login")
     public BaseResponse<Users> getLoginUser(HttpServletRequest request) {
-        Long userId = (Long)request.getSession().getAttribute(CommonConstant.SESSION_KEY);
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        Users user = usersService.getById(userId);
+        Users user = usersService.getLoginUsers(request);
         return ResultUtils.success(user);
     }
 
     /**
      * 修改用户信息
      */
-    @PostMapping("/update")
+    @PostMapping("/ban")
     public BaseResponse<Boolean> banUser(@RequestBody BanUserRequest banUserRequest) {
         // 查询用户
         Users user = usersService.getById(banUserRequest.getId());
@@ -101,7 +103,7 @@ public class UserController {
     /**
      * 修改用户信息
      */
-    @PostMapping("/ban")
+    @PostMapping("/update")
     public BaseResponse<Boolean> updateUser(@RequestBody UpdateUserRequest updateUserRequest) {
         // 查询用户
         Users user = usersService.getById(updateUserRequest.getId());

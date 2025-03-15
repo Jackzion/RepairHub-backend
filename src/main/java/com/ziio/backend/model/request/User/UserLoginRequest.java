@@ -1,4 +1,4 @@
-package com.ziio.backend.model.request;
+package com.ziio.backend.model.request.User;
 
 import lombok.Data;
 
