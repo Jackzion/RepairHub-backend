@@ -2,8 +2,13 @@ package com.ziio.backend.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ziio.backend.domain.RepairRecords;
 import com.ziio.backend.domain.Repairs;
 import com.ziio.backend.model.request.Repairs.RepairsSubmitRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.net.http.HttpRequest;
+import java.util.List;
 
 /**
 * @author Ziio
@@ -30,21 +35,18 @@ public interface RepairsService extends IService<Repairs> {
     IPage<Repairs> getUserRepairs(Integer userId, String status, IPage<Repairs> page);
     
     /**
-     * 取消未处理的工单
-     * @param repairId 工单ID
-     * @param userId 用户ID
-     * @return 是否取消成功
-     */
-    boolean cancelRepair(Integer repairId, Integer userId);
-    
-    /**
      * 维修人员接单
      * @param repairId 工单ID
      * @param maintainerId 维修人员ID
      * @return 更新后的工单
      */
     Repairs acceptRepair(Integer repairId, Integer maintainerId);
-    
+
+    /**
+     * 更新工单状态
+     */
+    Repairs updateRepairStatus(Integer repairId, String status);
+
     /**
      * 完成工单
      * @param repairId 工单ID
@@ -68,11 +70,31 @@ public interface RepairsService extends IService<Repairs> {
      * @return 更新后的工单
      */
     Repairs updatePriority(Integer repairId, String priority);
-    
+
+    /**
+     * 查看自己提交的工单列表
+     */
+    List<Repairs> getUserRepairs(HttpServletRequest request , String status);
+
+
     /**
      * 强制关闭工单
      * @param repairId 工单ID
      * @return 是否关闭成功
      */
-    boolean forceCloseRepair(Integer repairId);
+    boolean forceCloseRepair(Integer repairId,Integer adminId);
+
+    /**
+     * 获取工单进度详情
+     * @param repairId
+     * @return
+     */
+    RepairRecords getRepairRecords(Integer repairId);
+
+    /**
+     * 取消未处理（pending） 工单
+     * @param repairId
+     * @return
+     */
+    Boolean cancelPendingRepair(Integer repairId);
 }

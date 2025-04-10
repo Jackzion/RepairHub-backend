@@ -24,6 +24,12 @@ public class RepairRecordsServiceImpl extends ServiceImpl<RepairRecordsMapper, R
     @Override
     @Transactional
     public RepairRecords addRecord(Integer repairId, Integer handlerId, String type, String content, Object images) {
+        if("processing".equals(type)){
+            type = "process";
+        }
+        if("completed".equals(type)){
+            type = "complete";
+        }
         RepairRecords record = new RepairRecords();
         record.setRepairId(repairId);
         record.setHandlerId(handlerId);
