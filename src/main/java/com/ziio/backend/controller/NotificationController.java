@@ -46,12 +46,46 @@ public class NotificationController {
         return ResultUtils.success(isSuccess);
     }
 
+    // 设置消息为已读
+    @PutMapping("/readAll")
+    public BaseResponse<Boolean> setReadAll(HttpServletRequest request) {
+        Integer userId = usersService.getLoginUsers(request).getId();
+        List<Notifications> notificationsList = notificationsService.lambdaQuery()
+                .eq(Notifications::getReceiverId, userId)
+                .orderByDesc(Notifications::getCreatedAt)
+                .list();
+        for (Notifications notifications : notificationsList){
+            notifications.setIsRead(1);
+        }
+        boolean isSuccess = notificationsService.updateBatchById(notificationsList);
+        return ResultUtils.success(isSuccess);
+    }
+
+    // 删除全部消息
+    @PutMapping("/deleteAll")
+    public BaseResponse<Boolean> deleteAll(HttpServletRequest request) {
+        Integer userId = usersService.getLoginUsers(request).getId();
+        List<Notifications> notificationsList = notificationsService.lambdaQuery()
+                .eq(Notifications::getReceiverId, userId)
+                .orderByDesc(Notifications::getCreatedAt)
+                .list();
+        boolean isSuccess = notificationsService.removeBatchByIds(notificationsList);
+        return ResultUtils.success(isSuccess);
+    }
+
     // 新建消息
     @PutMapping("/create")
     public BaseResponse<Boolean> createNotification(AddNotificationRequest notificationRequest){
         Notifications notifications = new Notifications();
         BeanUtil.copyProperties(notificationRequest, notifications);
         boolean isSuccess = notificationsService.save(notifications);
+        return ResultUtils.success(isSuccess);
+    }
+
+    // 删除消息
+    @PutMapping("/delete")
+    public BaseResponse<Boolean> deleteNotification(@RequestParam Integer notificationId){
+        boolean isSuccess = notificationsService.removeById(notificationId);
         return ResultUtils.success(isSuccess);
     }
 
