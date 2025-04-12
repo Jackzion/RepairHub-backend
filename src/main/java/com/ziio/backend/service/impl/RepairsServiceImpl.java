@@ -5,12 +5,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ziio.backend.domain.Notifications;
 import com.ziio.backend.domain.RepairRecords;
 import com.ziio.backend.domain.Repairs;
 import com.ziio.backend.domain.Users;
+import com.ziio.backend.model.request.AddNotificationRequest;
 import com.ziio.backend.model.request.Repairs.RepairsSubmitRequest;
 import com.ziio.backend.model.vo.RepairsResVo;
 import com.ziio.backend.model.vo.RepairsStatistics;
+import com.ziio.backend.service.NotificationsService;
 import com.ziio.backend.service.RepairsService;
 import com.ziio.backend.mapper.RepairsMapper;
 
@@ -39,6 +42,9 @@ public class RepairsServiceImpl extends ServiceImpl<RepairsMapper, Repairs>
 
     @Resource
     private UsersService usersService;
+
+    @Resource
+    private NotificationsService notificationsService;
 
     @Override
     @Transactional
@@ -74,16 +80,28 @@ public class RepairsServiceImpl extends ServiceImpl<RepairsMapper, Repairs>
         this.updateById(repair);
         
         // 添加接单记录
-        repairRecordsService.addRecord(repairId, maintainerId, "accept", "维修人员接单", null);
+        repairRecordsService.addRecord(repairId, maintainerId, "processing", "维修人员接单", null);
         return repair;
     }
 
     @Override
-    public Repairs updateRepairStatus(Integer repairId, String status) {
+    public Repairs updateRepairStatus(Integer repairId, String status , Integer maintainerId) {
         // 更新工单状态
         Repairs repair = this.getById(repairId);
         repair.setStatus(status);
+        repair.setMaintainerId(maintainerId);
         this.updateById(repair);
+        Integer repairID = repair.getId();
+        // 发送通知
+        if("processing".equals(status)){
+            String content = "您的报修工单 " + repairID + " 已更新";
+            AddNotificationRequest notificationRequest = new AddNotificationRequest("repair", "维修工单状态更新", content, maintainerId, repair.getCreatorId());
+            notificationsService.createNotification(notificationRequest);
+        }else{
+            String content = "您的报修工单 " + repairID + " 已完成维修，请及时评价";
+            AddNotificationRequest notificationRequest = new AddNotificationRequest("message", "维修完成通知", content, maintainerId, repair.getCreatorId());
+            notificationsService.createNotification(notificationRequest);
+        }
         return repair;
     }
 
@@ -134,7 +152,7 @@ public class RepairsServiceImpl extends ServiceImpl<RepairsMapper, Repairs>
         Users loginUser = usersService.getLoginUsers(request);
         Integer userId = loginUser.getId();
         // 用户只展示自己创建的订单
-        if(loginUser.getRole().equals(0)){
+        if(loginUser.getRole().equals(1)){
             List<Repairs> repairsList = this.list(new LambdaQueryWrapper<Repairs>()
                     .eq(Repairs::getCreatorId, userId)
                     .eq(status != null, Repairs::getStatus, status)
@@ -157,11 +175,42 @@ public class RepairsServiceImpl extends ServiceImpl<RepairsMapper, Repairs>
             }
             return new RepairsResVo(repairsList, repairsStatistics);
         }
-        // 其他人能看到全部订单
-        else{
+        // 管理员能看到全部订单
+        else if(loginUser.getRole().equals(2)){
             List<Repairs> repairsList = this.list(new LambdaQueryWrapper<Repairs>()
                     .eq(status != null, Repairs::getStatus, status)
                     .orderByDesc(Repairs::getCreatedAt));
+            // 统计订单
+            RepairsStatistics repairsStatistics = new RepairsStatistics();
+            for(Repairs repairs : repairsList){
+                if(repairs.getStatus().equals("pending")){
+                    repairsStatistics.setPending(repairsStatistics.getPending() + 1);
+                }
+                else if(repairs.getStatus().equals("processing")){
+                    repairsStatistics.setProcessing(repairsStatistics.getProcessing() + 1);
+                }
+                else{
+                    repairsStatistics.setCompleted(repairsStatistics.getCompleted() + 1);
+                }
+                repairsStatistics.setPendingPercentage(repairsStatistics.getPending() * 100 / repairsList.size());
+                repairsStatistics.setProcessingPercentage(repairsStatistics.getProcessing() * 100 / repairsList.size());
+                repairsStatistics.setCompletedPercentage(repairsStatistics.getCompleted() * 100 / repairsList.size());
+            }
+            return new RepairsResVo(repairsList, repairsStatistics);
+        }
+        // 维修人员能看到 pending or maintainer 为自己的工单
+        else{
+            LambdaQueryWrapper<Repairs> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.and(wrapper -> wrapper
+                    .eq(Repairs::getMaintainerId, userId)
+                    .or()
+                    .eq(Repairs::getStatus, "pending")
+            );
+            if (status != null) {
+                queryWrapper.eq(Repairs::getStatus, status);
+            }
+            queryWrapper.orderByDesc(Repairs::getCreatedAt);
+            List<Repairs> repairsList = this.list(queryWrapper);
             // 统计订单
             RepairsStatistics repairsStatistics = new RepairsStatistics();
             for(Repairs repairs : repairsList){

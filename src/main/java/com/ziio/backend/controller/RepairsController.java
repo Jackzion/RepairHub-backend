@@ -82,9 +82,11 @@ public class RepairsController {
     @PutMapping("/status/update")
     public BaseResponse<Repairs> updateRepairStatus(
             @RequestParam Integer repairId,
-            @RequestParam String status
+            @RequestParam String status,
+            HttpServletRequest request
     ) {
-        Repairs repair = repairsService.updateRepairStatus(repairId, status);
+        Integer maintainerId = usersService.getLoginUsers(request).getId();
+        Repairs repair = repairsService.updateRepairStatus(repairId, status,maintainerId);
         return ResultUtils.success(repair);
     }
 

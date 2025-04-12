@@ -47,7 +47,7 @@ public interface RepairsService extends IService<Repairs> {
     /**
      * 更新工单状态
      */
-    Repairs updateRepairStatus(Integer repairId, String status);
+    Repairs updateRepairStatus(Integer repairId, String status,Integer maintainerId);
 
     /**
      * 完成工单
