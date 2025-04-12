@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.ziio.backend.domain.RepairRecords;
 import com.ziio.backend.domain.Repairs;
 import com.ziio.backend.model.request.Repairs.RepairsSubmitRequest;
+import com.ziio.backend.model.vo.RepairsResVo;
+import com.ziio.backend.model.vo.RepairsStatistics;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.http.HttpRequest;
@@ -74,7 +76,7 @@ public interface RepairsService extends IService<Repairs> {
     /**
      * 查看自己提交的工单列表
      */
-    List<Repairs> getUserRepairs(HttpServletRequest request , String status);
+    RepairsResVo getUserRepairs(HttpServletRequest request , String status);
 
 
     /**

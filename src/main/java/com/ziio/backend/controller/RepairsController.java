@@ -2,6 +2,8 @@ package com.ziio.backend.controller;
 
 import com.ziio.backend.domain.RepairRecords;
 import com.ziio.backend.model.request.Repairs.RepairsSubmitRequest;
+import com.ziio.backend.model.vo.RepairsResVo;
+import com.ziio.backend.model.vo.RepairsStatistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -124,9 +126,9 @@ public class RepairsController {
         return ResultUtils.success(repairsService.forceCloseRepair(repairId,adminId));
     }
 
-    // 获取自己提交的工单列表 , 按状态过滤
+    // 获取自己提交的工单列表和统计结果 , 按状态过滤
     @GetMapping("/getUserRepairs")
-    public BaseResponse<List<Repairs>> getUserRepairs(HttpServletRequest request , @RequestParam(required = false) String status) {
+    public BaseResponse<RepairsResVo> getUserRepairs(HttpServletRequest request , @RequestParam(required = false) String status) {
         return ResultUtils.success(repairsService.getUserRepairs(request,status));
     }
 

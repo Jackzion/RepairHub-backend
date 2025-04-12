@@ -9,6 +9,8 @@ import com.ziio.backend.domain.RepairRecords;
 import com.ziio.backend.domain.Repairs;
 import com.ziio.backend.domain.Users;
 import com.ziio.backend.model.request.Repairs.RepairsSubmitRequest;
+import com.ziio.backend.model.vo.RepairsResVo;
+import com.ziio.backend.model.vo.RepairsStatistics;
 import com.ziio.backend.service.RepairsService;
 import com.ziio.backend.mapper.RepairsMapper;
 
@@ -128,21 +130,55 @@ public class RepairsServiceImpl extends ServiceImpl<RepairsMapper, Repairs>
     }
 
     @Override
-    public List<Repairs> getUserRepairs(HttpServletRequest request , String status) {
+    public RepairsResVo getUserRepairs(HttpServletRequest request , String status) {
         Users loginUser = usersService.getLoginUsers(request);
         Integer userId = loginUser.getId();
         // 用户只展示自己创建的订单
         if(loginUser.getRole().equals(0)){
-            return this.list(new LambdaQueryWrapper<Repairs>()
+            List<Repairs> repairsList = this.list(new LambdaQueryWrapper<Repairs>()
                     .eq(Repairs::getCreatorId, userId)
                     .eq(status != null, Repairs::getStatus, status)
                     .orderByDesc(Repairs::getCreatedAt));
+            // 统计订单
+            RepairsStatistics repairsStatistics = new RepairsStatistics();
+            for(Repairs repairs : repairsList){
+                if(repairs.getStatus().equals("pending")){
+                    repairsStatistics.setPending(repairsStatistics.getPending() + 1);
+                }
+                else if(repairs.getStatus().equals("processing")){
+                    repairsStatistics.setProcessing(repairsStatistics.getProcessing() + 1);
+                }
+                else{
+                    repairsStatistics.setCompleted(repairsStatistics.getCompleted() + 1);
+                }
+                repairsStatistics.setPendingPercentage(repairsStatistics.getPending() * 100 / repairsList.size());
+                repairsStatistics.setProcessingPercentage(repairsStatistics.getProcessing() * 100 / repairsList.size());
+                repairsStatistics.setCompletedPercentage(repairsStatistics.getCompleted() * 100 / repairsList.size());
+            }
+            return new RepairsResVo(repairsList, repairsStatistics);
         }
         // 其他人能看到全部订单
         else{
-            return this.list(new LambdaQueryWrapper<Repairs>()
+            List<Repairs> repairsList = this.list(new LambdaQueryWrapper<Repairs>()
                     .eq(status != null, Repairs::getStatus, status)
                     .orderByDesc(Repairs::getCreatedAt));
+            // 统计订单
+            RepairsStatistics repairsStatistics = new RepairsStatistics();
+            for(Repairs repairs : repairsList){
+                if(repairs.getStatus().equals("pending")){
+                    repairsStatistics.setPending(repairsStatistics.getPending() + 1);
+                }
+                else if(repairs.getStatus().equals("processing")){
+                    repairsStatistics.setProcessing(repairsStatistics.getProcessing() + 1);
+                }
+                else{
+                    repairsStatistics.setCompleted(repairsStatistics.getCompleted() + 1);
+                }
+                repairsStatistics.setPendingPercentage(repairsStatistics.getPending() * 100 / repairsList.size());
+                repairsStatistics.setProcessingPercentage(repairsStatistics.getProcessing() * 100 / repairsList.size());
+                repairsStatistics.setCompletedPercentage(repairsStatistics.getCompleted() * 100 / repairsList.size());
+            }
+            return new RepairsResVo(repairsList, repairsStatistics);
         }
     }
 
