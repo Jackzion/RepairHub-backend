@@ -1,7 +1,10 @@
 package com.ziio.backend.service;
 
-import com.ziio.backend.domain.Equipments;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ziio.backend.domain.Equipments;
+import com.ziio.backend.model.request.EquipmentUpdateRequest;
+
+import java.util.List;
 
 /**
 * @author Ziio
@@ -10,4 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface EquipmentsService extends IService<Equipments> {
 
+    List<Equipments> listEquipments( String status);
+
+    Boolean updateEquipments(EquipmentUpdateRequest updateRequest);
 }
